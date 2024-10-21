@@ -1,0 +1,109 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      # - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - back-tier
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+  frontends:
+    container_name: frontends
+    image: loan_frontend:v1
+    build:
+      context: /frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - back-tier
+  manage_customers:
+    container_name: manage_customers
+    image: manage_customers:v1
+    links:
+      - postgres
+    depends_on:
+      - postgres
+      # postgres:
+      # condition: service_healthy
+    environment:
+      - SERVER_PORT=3000
+      - DB_HOST=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=loan
+    networks:
+      - back-tier
+  manage_loans:
+    container_name: manage_loans
+    image: manage_loans:v3
+    build:
+      context: /backend/manage_loans
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      - SERVER_PORT=3000
+      - DB_HOST=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=loan
+    networks:
+      - back-tier
+  manage_payments:
+    container_name: manage_payments
+    image: manage_payments:v4
+    build:
+      context: /backend/manage_payments
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      - SERVER_PORT=3000
+      - DB_HOST=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=loan
+    networks:
+      - back-tier
+  nginx:
+    container_name: nginx
+    image: nginxloans:v1
+    build:
+      context: /backend/NGINX
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - manage_customers
+      - manage_loans
+      - manage_payments
+    networks:
+      - back-tier
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+networks:
+  back-tier:
+volumes:
+  pg_data:

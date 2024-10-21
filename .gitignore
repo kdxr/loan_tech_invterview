@@ -1,0 +1,71 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+# /node_modules
+node_modules/
+/.pnp
+.pnp.js
+# /.bin
+# .bin
+
+# testing
+/coverage
+
+# next.js
+# /.next
+.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IntelliJ IDEA
+.idea/
+
+# dotenv environment variables file
+.env*
+!.env.example
+.env.example
+
+#scanner work
+/.scannerwork/
+
+
+# Yarn Integrity file
+.yarn-integrity
+
+#Yarn log file
+yarn.log
+.yarn.log
+.yarn.log*
+yarn.lock
+
+
+# Package File
+package-lock.json
+.package-lock.json
+
+# text editor
+.vscode
+node_modules
+
+#Pnpm
+pnpm-lock.yaml
+
+#Scan code Ignore coverity
+coverity.yaml
+/idir
+
+/data
+tmp/
+
+*.docx
+*.pdf
